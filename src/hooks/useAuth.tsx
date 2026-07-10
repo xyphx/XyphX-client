@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
-  User, 
-  onAuthStateChanged, 
-  signInWithPopup, 
-  signOut as firebaseSignOut 
-} from "firebase/auth";
-import { auth, googleProvider } from "../lib/firebase";
-import { validateAdminAccess } from "../lib/admin";
+
+// Dummy user type to replace Firebase User
+interface User {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+}
 
 interface AuthContextType {
   user: User | null;
@@ -24,44 +24,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      setLoading(true);
-      if (firebaseUser) {
-        // Run security check
-        const adminStatus = await validateAdminAccess(firebaseUser);
-        
-        if (adminStatus) {
-          setUser(firebaseUser);
-          setIsAdmin(true);
-        } else {
-          // If not admin, validateAdminAccess already called signOut
-          setUser(null);
-          setIsAdmin(false);
-        }
-      } else {
-        setUser(null);
-        setIsAdmin(false);
-      }
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
+    // Check local storage for persistent dummy login
+    const storedUser = localStorage.getItem('dummyUser');
+    if (storedUser) {
+      setUser(JSON.parse(storedUser));
+      setIsAdmin(true);
+    }
+    setLoading(false);
   }, []);
 
   const login = async () => {
     try {
-      await signInWithPopup(auth, googleProvider);
+      // Simulate network delay
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      
+      const dummyUser: User = {
+        uid: "dummy-admin-123",
+        email: "admin@xyphx.com",
+        displayName: "XyphX Admin",
+        photoURL: null,
+      };
+
+      localStorage.setItem('dummyUser', JSON.stringify(dummyUser));
+      setUser(dummyUser);
+      setIsAdmin(true);
     } catch (error) {
       console.error("Login failed:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      await firebaseSignOut(auth);
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      localStorage.removeItem('dummyUser');
+      setUser(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      setLoading(false);
     }
   };
 

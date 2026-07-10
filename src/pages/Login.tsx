@@ -2,7 +2,7 @@ import React from "react";
 import { useAuth } from "../hooks/useAuth";
 import { Navigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { LogIn, ShieldCheck, Mail } from "lucide-react";
+import { ShieldCheck, Mail } from "lucide-react";
 
 const Login: React.FC = () => {
   const { login, user, isAdmin, loading } = useAuth();
@@ -15,36 +15,37 @@ const Login: React.FC = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[#020202] p-4 font-sans overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-0 -left-4 w-72 h-72 bg-blue-600/20 rounded-full blur-[128px]" />
-      <div className="absolute bottom-0 -right-4 w-72 h-72 bg-purple-600/20 rounded-full blur-[128px]" />
-      
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative z-10 w-full max-w-md overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl"
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-white p-4 font-sans">
+      <div className="absolute inset-0 bg-dot-grid" aria-hidden />
+      <div className="absolute -top-40 left-1/4 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(95,0,183,0.14),transparent_70%)] blur-3xl animate-blob" aria-hidden />
+      <div className="absolute -bottom-40 right-1/4 h-[28rem] w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(199,125,255,0.16),transparent_70%)] blur-3xl animate-blob animation-delay-2000" aria-hidden />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24, filter: "blur(10px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, ease: [0.21, 0.6, 0.35, 1] }}
+        className="relative z-10 w-full max-w-md overflow-hidden rounded-[2rem] glass-strong p-8 shadow-depth"
       >
         <div className="mb-8 text-center">
-          <motion.div 
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1 }}
-            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 shadow-lg shadow-blue-500/20"
+          <motion.div
+            initial={{ scale: 0.7, rotate: -8 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: "spring", stiffness: 160, damping: 14, delay: 0.15 }}
+            className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[linear-gradient(135deg,#5F00B7,#9B30FF)] shadow-glow"
           >
             <ShieldCheck className="h-8 w-8 text-white" />
           </motion.div>
-          <h1 className="text-3xl font-bold tracking-tight text-white">Admin Access</h1>
-          <p className="mt-2 text-zinc-400">Authorized personnel only</p>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-black">Admin Access</h1>
+          <p className="mt-2 text-black/55">Authorized personnel only</p>
         </div>
 
         <div className="space-y-4">
           <button
             onClick={() => login()}
             disabled={loading}
-            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-xl bg-white px-6 py-3.5 font-semibold text-black transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-50"
+            className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-primary/15 bg-white px-6 py-3.5 font-semibold text-black shadow-sm transition-all duration-300 hover:border-primary/35 hover:shadow-glow active:scale-[0.98] disabled:opacity-50"
           >
-            <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -64,20 +65,21 @@ const Login: React.FC = () => {
             </svg>
             Sign in with Google
           </button>
-          
+
           <div className="flex items-center gap-4 py-2">
-            <div className="h-px flex-1 bg-white/10" />
-            <span className="text-xs uppercase tracking-widest text-zinc-500">Security Note</span>
-            <div className="h-px flex-1 bg-white/10" />
+            <div className="h-px flex-1 bg-primary/10" />
+            <span className="text-xs uppercase tracking-widest text-black/40">Security Note</span>
+            <div className="h-px flex-1 bg-primary/10" />
           </div>
 
-          <p className="text-center text-sm text-zinc-500">
-            Access is restricted to emails registered in the <code className="rounded bg-white/5 px-1.5 py-0.5 text-blue-400">admins</code> collection.
+          <p className="text-center text-sm text-black/50">
+            Access is restricted to emails registered in the{" "}
+            <code className="rounded bg-purple-50 px-1.5 py-0.5 text-primary">admins</code> collection.
           </p>
         </div>
 
         {/* Footer info */}
-        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-zinc-600">
+        <div className="mt-12 flex items-center justify-center gap-2 text-xs text-black/40">
           <Mail className="h-3 w-3" />
           support@xyphx.com
         </div>

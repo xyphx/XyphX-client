@@ -1,8 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/configs/firebase';
-import { useIsMobile } from '@/hooks/use-mobile';
+import React, { useEffect, useState } from "react";
+import Reveal from "@/components/motion/Reveal";
 
 interface Sponsor {
   id: string;
@@ -10,70 +7,56 @@ interface Sponsor {
   logo_url: string;
 }
 
+/**
+ * Sponsor ticker — a tilted strip of type running across the field,
+ * like tape across a drawing board. Pauses on hover.
+ */
 const Sponsors: React.FC = () => {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
-  const isMobile = useIsMobile();
 
   useEffect(() => {
-    const fetchSponsors = async () => {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'sponsors'));
-        const sponsorList = querySnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Sponsor[];
-        setSponsors(sponsorList);
-      } catch (error) {
-        console.error('Error fetching sponsors:', error);
-      }
-    };
-
-    fetchSponsors();
+    // Dummy sponsors
+    const dummySponsors: Sponsor[] = [
+      { id: "1", name: "Xiaomi", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Xiaomi_logo_%282021-%29.svg" },
+      { id: "2", name: "Microsoft", logo_url: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
+      { id: "4", name: "HP", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/ad/HP_logo_2012.svg" },
+    ];
+    setSponsors(dummySponsors);
   }, []);
 
   if (sponsors.length === 0) return null;
 
-  // Duplicate sponsors for infinite loop
-  const duplicatedSponsors = [...sponsors, ...sponsors];
+  // Duplicate the 2 sponsors multiple times to create a seamless continuous marquee loop
+  const duplicated = Array(8).fill(sponsors).flat();
 
   return (
-    <section className="relative z-10 py-12 px-4 overflow-hidden border-y border-purple-500/10 bg-black/5 md:bg-black/20 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto mb-8">
-        <h3 className="text-sm font-semibold text-center uppercase tracking-[0.3em] text-purple-400/80 mb-2">
-          Our Sponsors
-        </h3>
-        <div className="w-12 h-0.5 bg-gradient-to-r from-purple-500 to-transparent mx-auto rounded-full opacity-50"></div>
-      </div>
+    <section className="relative z-10 py-24 overflow-hidden">
+      <Reveal amount={0.5} blur={false}>
+        <p className="label-mono mb-10 px-6 md:px-10 text-carbon/40">
+          Backed by — <span className="text-ink">our sponsors</span>
+        </p>
+      </Reveal>
 
-      <div className="relative flex overflow-x-hidden group">
-        <motion.div
-          className="flex whitespace-nowrap"
-          animate={{
-            x: ["0%", "-50%"], 
-          }}
-          transition={{
-            x: {
-              repeat: Infinity,
-              repeatType: "loop",
-              duration: 25,
-              ease: "linear",
-            },
-          }}
-        >
-          {duplicatedSponsors.map((sponsor, index) => (
-            <div
-              key={`${sponsor.id}-${index}`}
-              className="flex items-center justify-center mx-16 grayscale hover:grayscale-0 transition-all duration-500 opacity-50 hover:opacity-100"
-            >
-              <img
-                src={sponsor.logo_url}
-                alt={sponsor.name}
-                className="h-8 md:h-12 w-auto object-contain"
-              />
+      <Reveal amount={0.4} blur={false} delay={0.1}>
+        <div className="-mx-8 -rotate-[1.5deg]">
+          <div className="pause-on-hover border-y border-line bg-paper py-8 overflow-hidden">
+            <div className="flex w-max animate-marquee items-center whitespace-nowrap">
+              {duplicated.map((s, i) => (
+                <span key={`${s.id}-${i}`} className="group mx-2 flex items-center">
+                  <img
+                    src={s.logo_url}
+                    alt={s.name}
+                    className="h-8 md:h-12 w-auto object-contain opacity-90 transition-all duration-300 group-hover:opacity-100"
+                  />
+                  <span className="mx-12 font-mono text-ink/30" aria-hidden>
+                    +
+                  </span>
+                </span>
+              ))}
             </div>
-          ))}
-        </motion.div>
-      </div>
+          </div>
+        </div>
+      </Reveal>
     </section>
   );
 };

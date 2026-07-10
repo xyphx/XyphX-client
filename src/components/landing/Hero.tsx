@@ -1,99 +1,148 @@
-import React, { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Wrench, Brain, Rocket, Mail, Linkedin, GithubIcon, ChevronDown } from 'lucide-react';
-import { motion } from "framer-motion";
-import useIsMobile from '@/hooks/use-mobile';
+import { useRef } from "react";
+import {
+  motion,
+  useScroll,
+  useSpring,
+  useTransform,
+  useReducedMotion,
+} from "framer-motion";
+import { scrollToId } from "@/lib/scroll";
 
-
-
-export default function Hero() {
- 
-   const isMobile = useIsMobile();
-
-  const fadeInUp = {
-    initial: { opacity: 0, y: 70 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: isMobile ? 0.3 :0.8 },
-    transition: { duration: 1.5 },
-  };
-        const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-         const [isLoaded, setIsLoaded] = useState(false);
-       
-         useEffect(() => {
-           const handleMouseMove = (e: MouseEvent) => {
-             setMousePosition({ x: e.clientX, y: e.clientY });
-           };
-       
-           window.addEventListener('mousemove', handleMouseMove);
-           setIsLoaded(true);
-       
-           return () => window.removeEventListener('mousemove', handleMouseMove);
-         }, []);
-       
-         const scrollToSection = (id: string) => {
-           document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-         };
+/* ————————————————————————————————————————————————
+   Headline line: rises in behind a mask on load; characters
+   answer the cursor with a quiet ink response.
+   ———————————————————————————————————————————————— */
+function HeadlineLine({
+  text,
+  ink = false,
+  delay = 0,
+  className = "",
+}: {
+  text: string;
+  ink?: boolean;
+  delay?: number;
+  className?: string;
+}) {
   return (
-    <div>
-      <section className="relative z-10 min-h-screen flex items-center justify-center px-4 ">
-        <div className="text-center max-w-6xl mx-auto">
-          <motion.div {...fadeInUp}>
-            <div
-              className={`transition-all ${
-                isLoaded
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-10"
+    <span className={`block overflow-hidden pb-[0.06em] -mb-[0.06em] ${className}`}>
+      <motion.span
+        className="block"
+        initial={{ y: "110%" }}
+        animate={{ y: 0 }}
+        transition={{ duration: 1.2, delay, ease: [0.65, 0, 0.35, 1] }}
+        aria-hidden
+      >
+        {text.split("").map((ch, i) =>
+          ch === " " ? (
+            <span key={i} className="inline-block w-[0.24em]" />
+          ) : (
+            <span
+              key={i}
+              className={`inline-block transition-colors duration-300 ${
+                ink ? "text-ink" : "text-carbon hover:text-ink"
               }`}
             >
-              <div className="relative mb-8">
-                <img
-                  src="/logo_dark.png"
-                  alt="XyphX Logo"
-                  className="w-64 h-64 mx-auto mb-8"
-                />
-                <div className="absolute inset-0  blur-xl rounded-full"></div>
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-purple-300 to-purple-500 bg-clip-text text-transparent">
-                Welcome to XyphX
-              </h1>
-              <h2 className="text-2xl md:text-3xl mb-4 text-purple-300">
-                Engineering the Future of Tech
-              </h2>
-              <p className="text-xl mb-12 text-gray-300 max-w-2xl mx-auto">
-                Crafting Tomorrow's Tech, Today
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Button
-                  size="lg"
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 text-lg group transition-all duration-300 hover:scale-105"
-                  onClick={() => scrollToSection("products")}
-                >
-                  Explore Our Products
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Button>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-purple-500 text-purple-700 hover:text-white hover:bg-purple-500/10 px-8 py-4 text-lg transition-all duration-300 hover:scale-105"
-                  onClick={() => scrollToSection("services")}
-                >
-                  XyphX Lauchpad
-                </Button>
-              </div>
-            </div>
+              {ch}
+            </span>
+          )
+        )}
+      </motion.span>
+    </span>
+  );
+}
+
+/**
+ * Hero — pinned for the first stretch of scroll. On exit, the layers
+ * separate: headline lines slide at different rates, the frame settles into the About section.
+ */
+export default function Hero() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const reduce = useReducedMotion();
+
+  const { scrollYProgress } = useScroll({
+    target: trackRef,
+    offset: ["start start", "end start"],
+  });
+  const progress = useSpring(scrollYProgress, { stiffness: 90, damping: 26 });
+
+  // layered exit choreography
+  const metaOpacity = useTransform(progress, [0, 0.25], [1, 0]);
+  const metaY = useTransform(progress, [0, 0.3], [0, -24]);
+  const line1Y = useTransform(progress, [0, 1], [0, -220]);
+  const line2Y = useTransform(progress, [0, 1], [0, -140]);
+  const line3Y = useTransform(progress, [0, 1], [0, -60]);
+  const titleOpacity = useTransform(progress, [0.45, 0.95], [1, 0]);
+  const titleScale = useTransform(progress, [0, 0.9], [1, 0.96]);
+  const cueOpacity = useTransform(progress, [0, 0.12], [1, 0]);
+
+  const still = { y: 0, opacity: 1, scale: 1 } as const;
+
+  return (
+    /* 150vh track — the extra height is the scrub for the exit sequence */
+    <div ref={trackRef} className="relative z-10 h-[110vh] md:h-[150vh]">
+      <section className="sticky top-0 flex min-h-screen flex-col justify-center overflow-hidden px-6 md:px-10 pt-24 pb-16">
+
+        <div className="relative mx-auto w-full max-w-[96rem]">
+          {/* meta row — first layer to leave */}
+          <motion.div style={reduce ? still : { opacity: metaOpacity, y: metaY }}>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 1 }}
+              className="mb-14 flex items-center justify-between border-b border-line pb-4"
+            >
+              <span className="label-mono text-carbon/50">001 — Welcome to XyphX</span>
+              <span className="label-mono hidden sm:block text-carbon/50">Field of work: AI & Software</span>
+              <span className="label-mono hidden md:block text-ink">Crafting tomorrow's tech, today</span>
+            </motion.div>
           </motion.div>
+
+          {/* the monument — stepped composition, lines shear apart on scroll */}
+          <motion.h1
+            style={reduce ? still : { opacity: titleOpacity, scale: titleScale }}
+            className="origin-left font-display font-bold uppercase leading-[0.94] tracking-[-0.03em] text-[clamp(2.9rem,9.6vw,9.5rem)] select-none"
+            aria-label="Engineering the future of tech"
+          >
+            <motion.span style={reduce ? still : { y: line1Y }} className="block">
+              <HeadlineLine text="Engineering" delay={0.35} />
+            </motion.span>
+            <motion.span style={reduce ? still : { y: line2Y }} className="block md:pl-[7vw]">
+              <HeadlineLine text="the Future" ink delay={0.5} />
+            </motion.span>
+            <motion.span style={reduce ? still : { y: line3Y }} className="block md:pl-[14vw]">
+              <span className="flex items-center gap-[0.18em]">
+                <HeadlineLine text="of Tech" delay={0.65} />
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 1.6, type: "spring", stiffness: 200, damping: 14 }}
+                  className="mt-[0.28em] inline-block h-[0.13em] w-[0.13em] rounded-full bg-ink"
+                  aria-hidden
+                />
+              </span>
+            </motion.span>
+          </motion.h1>
+
+          {/* statement and buttons removed per request */}
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 animate-bounce">
-          <ChevronDown className="h-8 w-8 text-purple-400" />
-        </div>
-
-        {/* 3D Floating Elements */}
-        <div className="absolute top-20 left-10 w-4 h-4 bg-purple-500 rounded-full animate-pulse opacity-60"></div>
-        <div className="absolute top-40 right-20 w-6 h-6 bg-purple-400 rounded-full animate-pulse opacity-40 animation-delay-1000"></div>
-        <div className="absolute bottom-40 left-20 w-3 h-3 bg-purple-600 rounded-full animate-pulse opacity-80 animation-delay-2000"></div>
+        {/* scroll cue — gone the moment you move */}
+        <motion.div
+          style={reduce ? still : { opacity: cueOpacity }}
+          className="absolute bottom-8 left-6 md:left-10"
+        >
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2 }}
+            onClick={() => scrollToId("about")}
+            className="flex items-center gap-3"
+            aria-label="Scroll to About"
+          >
+            <span className="block h-12 w-px bg-ink animate-cue" aria-hidden />
+            <span className="label-mono text-carbon/50">Scroll</span>
+          </motion.button>
+        </motion.div>
       </section>
     </div>
   );

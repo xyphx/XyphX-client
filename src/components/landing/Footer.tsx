@@ -1,64 +1,123 @@
-import React from 'react'
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Wrench, Brain, Rocket, Mail, Linkedin, GithubIcon, ChevronDown } from 'lucide-react';
-import { motion } from "framer-motion";
-import useIsMobile from '@/hooks/use-mobile';
+import React from "react";
+import Reveal from "@/components/motion/Reveal";
+import Magnetic from "@/components/motion/Magnetic";
+import { scrollToTop } from "@/lib/scroll";
+import { Linkedin, Github } from "lucide-react";
 
+const social = [
+  { label: "LinkedIn", href: "https://www.linkedin.com/company/xyphx" },
+  { label: "GitHub", href: "https://github.com/xyphx" },
+];
 
 export default function Footer() {
-
-  const isMobile = useIsMobile();
-
-  const fadeInUp = {
-    initial: { opacity: 0, y: 70 },
-    whileInView: { opacity: 1, y: 0 },
-    viewport: { once: true, amount: isMobile? 0.3 : 0.5 },
-    transition: { duration: 1.5 },
-  };
-
   return (
-    <div>
-      <footer id="contact" className="relative z-10 py-12 px-4 border-t border-purple-500/30">
-        <motion.div {...fadeInUp} className="max-w-7xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8 items-center">
-            <div className="text-center md:text-left justify-center items-center">
-              <img 
-                src="/logo_dark.png" 
-                alt="XyphX Logo" 
-                className="w-16 h-16 mx-auto md:mx-0 mb-4"
-              />
-              <p className="text-gray-400">Engineering the Future of Tech</p>
+    <footer id="contact" className="relative z-10 px-6 md:px-10 pt-32 pb-8 overflow-hidden">
+      <div className="mx-auto max-w-[96rem]">
+        {/* the invitation */}
+        <Reveal blur={false}>
+          <p className="label-mono mb-8 text-ink">06 — Contact</p>
+          <h2 className="max-w-4xl font-display text-4xl md:text-6xl font-bold uppercase leading-[1.02] tracking-[-0.02em] text-carbon">
+            Let's build the future together<span className="text-ink">.</span>
+          </h2>
+        </Reveal>
+
+        <div className="mt-12 grid gap-10 md:grid-cols-2">
+          <Reveal blur={false} delay={0.12}>
+            <div className="flex flex-col gap-2">
+              <span className="label-mono text-carbon/40 text-xs uppercase tracking-wider">Business & Partnerships</span>
+              <p className="text-sm text-carbon/60 max-w-sm leading-relaxed">
+                General inquiries, business inquiries, partnerships, media, and collaborations.
+              </p>
+              <a
+                href="mailto:info@xyphx.com"
+                data-cursor="WRITE"
+                className="group inline-flex items-baseline gap-2 mt-2 self-start"
+              >
+                <span className="font-display text-xl md:text-3xl font-medium tracking-tight text-ink underline decoration-1 underline-offset-4 decoration-ink/30 transition-colors duration-300 group-hover:decoration-ink">
+                  info@xyphx.com
+                </span>
+                <span aria-hidden className="font-display text-xl text-ink transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5">
+                  ↗
+                </span>
+              </a>
             </div>
-            
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-4 text-purple-300">Contact Us</h3>
-              <div className="flex items-center justify-center gap-2 text-gray-300 hover:text-purple-400 transition-colors">
-                <Mail className="h-4 w-4" />
-                <span>help.xyphx@outlook.com</span>
-              </div>
+          </Reveal>
+
+          <Reveal blur={false} delay={0.2}>
+            <div className="flex flex-col gap-2">
+              <span className="label-mono text-carbon/40 text-xs uppercase tracking-wider">Technical Support</span>
+              <p className="text-sm text-carbon/60 max-w-sm leading-relaxed">
+                Technical support, product support, bug reports, and account issues.
+              </p>
+              <a
+                href="mailto:support@xyphx.com"
+                data-cursor="WRITE"
+                className="group inline-flex items-baseline gap-2 mt-2 self-start"
+              >
+                <span className="font-display text-xl md:text-3xl font-medium tracking-tight text-ink underline decoration-1 underline-offset-4 decoration-ink/30 transition-colors duration-300 group-hover:decoration-ink">
+                  support@xyphx.com
+                </span>
+                <span aria-hidden className="font-display text-xl text-ink transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-0.5">
+                  ↗
+                </span>
+              </a>
             </div>
-            
-            <div className="text-center md:text-right">
-              <h3 className="text-lg font-semibold mb-4 text-purple-300">Connect With Us</h3>
-              <div className="flex justify-center md:justify-end gap-4">
-                <a href="https://www.linkedin.com/company/xyphx" target='_blank' className="p-3 bg-purple-600/20 rounded-full hover:bg-purple-600/40 transition-all duration-300 hover:scale-110 gap-2">
-                  <Linkedin className="h-5 w-5 text-purple-400" />
-                  
-                </a>
-                <a href="https://github.com/xyphx" target='_blank' className="p-3 bg-purple-600/20 rounded-full hover:bg-purple-600/40 transition-all duration-300 hover:scale-110 gap-2">
-                  <GithubIcon className="h-5 w-5 text-purple-400" />
-                  
-                </a>
+          </Reveal>
+        </div>
+
+        {/* ledger */}
+        <Reveal blur={false} delay={0.2}>
+          <div className="mt-24 grid gap-8 border-t border-line pt-8 md:grid-cols-2">
+            <div>
+              <p className="label-mono mb-3 text-carbon/40">Practice</p>
+              <p className="text-carbon/70">Engineering the Future of Tech</p>
+            </div>
+            <div>
+              <p className="label-mono mb-3 text-carbon/40">Follow</p>
+              <div className="flex gap-8">
+                {social.map((s) => {
+                  const Icon = s.label === "LinkedIn" ? Linkedin : Github;
+                  return (
+                    <a
+                      key={s.label}
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`XyphX on ${s.label}`}
+                      className="link-draw flex items-center gap-1.5 text-carbon/70 hover:text-ink transition-colors"
+                    >
+                      <Icon className="h-4 w-4" />
+                      <span>{s.label} ↗</span>
+                    </a>
+                  );
+                })}
               </div>
             </div>
           </div>
-          
-          <div className="border-t border-purple-500/20 mt-8 pt-8 text-center text-gray-500">
-            <p>&copy; 2025 XyphX</p>
+        </Reveal>
+
+        {/* the monument wordmark — each letter answers the cursor */}
+        <Reveal blur={false} delay={0.1} amount={0.2}>
+          <div className="mt-24 flex select-none justify-center leading-none" aria-hidden>
+            {"XYPHX".split("").map((ch, i) => (
+              <Magnetic key={i} strength={0.4}>
+                <span className="font-display text-[clamp(4.5rem,17vw,15rem)] font-bold tracking-[-0.02em] text-stroke-ink transition-colors duration-500 hover:text-ink hover:[-webkit-text-stroke-width:0]">
+                  {ch}
+                </span>
+              </Magnetic>
+            ))}
           </div>
-        </motion.div>
-      </footer>
-    </div>
-  )
+        </Reveal>
+
+        {/* base line */}
+        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-line pt-6 md:flex-row">
+          <p className="label-mono text-carbon/40">© 2025 XyphX</p>
+          <p className="label-mono hidden md:block text-carbon/40">One ink · one field · 8pt grid</p>
+          <button onClick={scrollToTop} data-cursor="TOP" className="label-mono link-draw text-ink">
+            Back to top ↑
+          </button>
+        </div>
+      </div>
+    </footer>
+  );
 }

@@ -1,53 +1,37 @@
-import React, { useEffect } from 'react';
+import React from "react";
 
+/** Boot screen — the field assembling: wordmark, one drawing line, mono status. */
 const SplashScreen: React.FC = () => {
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black text-white overflow-hidden">
-      {/* Purple animated grid */}
-      <div className="absolute inset-0 bg-cyber-grid bg-grid opacity-10 animate-slow-pan"></div>
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center overflow-hidden bg-paper">
+      <div className="absolute inset-0 bg-field [mask-image:radial-gradient(ellipse_80%_70%_at_50%_50%,black_30%,transparent_80%)]" aria-hidden />
 
-      {/* Subtle purple noise overlay */}
-      <div className="absolute inset-0 opacity-5 mix-blend-overlay pointer-events-none"></div>
+      <div className="relative flex flex-col items-center animate-fade-in">
+        <img src="/logo.png" alt="XyphX" className="mb-8 h-20 w-20 object-contain" />
 
-      {/* Glowing orbs */}
-      <div className="absolute top-1/4 left-1/4 w-60 h-60 bg-purple-700/20 rounded-full blur-3xl animate-pulse"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-44 h-44 bg-purple-500/15 rounded-full blur-2xl animate-ping-slow"></div>
+        <p className="font-display text-4xl font-bold tracking-tight text-carbon">
+          XYPHX
+        </p>
 
-      {/* Main glass panel */}
-      <div className="relative -z-10 flex flex-col items-center space-y-8 p-10 rounded-3xl  backdrop-blur-xl shadow-xl animate-fade-in">
-        {/* Logo */}
-        <div className="w-36 h-36 flex items-center justify-center">
-          <img
-            src="/logo_dark.png"
-            alt="Logo"
-            className="w-full h-full object-contain"
-          />
+        {/* drawing line */}
+        <div className="relative mt-8 h-px w-56 bg-line" aria-hidden>
+          <span className="absolute inset-0 bg-ink" style={{ animation: "splash-draw 1.8s cubic-bezier(0.65,0,0.35,1) infinite" }} />
         </div>
+        <style>{`
+          @keyframes splash-draw {
+            0% { transform: scaleX(0); transform-origin: left; }
+            45% { transform: scaleX(1); transform-origin: left; }
+            55% { transform: scaleX(1); transform-origin: right; }
+            100% { transform: scaleX(0); transform-origin: right; }
+          }
+        `}</style>
 
-        {/* Loading animation */}
-        <div className="flex flex-col items-center space-y-3">
-          <div className="relative w-16 h-16">
-            <div className="absolute inset-0 border-4 border-purple-800/30 rounded-full"></div>
-            <div className="absolute inset-0 border-4 border-transparent border-t-purple-500 rounded-full animate-spin"></div>
-            <div className="absolute inset-2 border-2 border-transparent border-r-purple-300/70 rounded-full animate-spin-reverse"></div>
-          </div>
-
-          <h2 className="text-2xl md:text-3xl uppercase font-bold text-purple-700 tracking-widest animate-pulse">
-            Initializing...
-          </h2>
-
-          {/* Progress dots */}
-          <div className="flex space-x-2">
-            <div className="w-2 h-2 bg-purple-700 rounded-full animate-bounce"></div>
-            <div className="w-2 h-2 bg-purple-700 rounded-full animate-bounce delay-150"></div>
-            <div className="w-2 h-2 bg-purple-700 rounded-full animate-bounce delay-300"></div>
-          </div>
-        </div>
+        <p className="label-mono mt-6 text-carbon/50">
+          Initializing <span className="text-ink">the field</span>
+        </p>
       </div>
 
-      {/* Cyber scan line */}
-      <div className="absolute w-full h-0.5 bg-gradient-to-r from-transparent via-purple-700 to-transparent animate-scan"></div>
+      <p className="label-mono absolute bottom-8 text-carbon/30">Engineering the Future of Tech</p>
     </div>
   );
 };

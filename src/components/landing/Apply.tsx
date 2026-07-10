@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { toast } from "@/components/ui/use-toast";   // shadcn toast ⬅️
+import { toast } from "@/components/ui/use-toast";
 
 interface TechInterestFormPopupProps {
   isOpen: boolean;
@@ -25,14 +24,11 @@ const fieldVariants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.2 },
+    transition: { delay: i * 0.08 },
   }),
 };
 
-export default function TechInterestFormPopup({
-  isOpen,
-  onClose,
-}: TechInterestFormPopupProps) {
+export default function TechInterestFormPopup({ isOpen, onClose }: TechInterestFormPopupProps) {
   const {
     register,
     handleSubmit,
@@ -46,32 +42,29 @@ export default function TechInterestFormPopup({
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/apply/`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/apply/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
 
       const result = await response.json();
 
       if (response.ok) {
         toast({
           title: "Application submitted",
-          description: "🎉 We’ll get back to you soon.",
-          className: "border border-purple-600 bg-neutral-900 text-white",
-          duration: 5000, 
+          description: "🎉 We'll get back to you soon.",
+          className: "border border-primary/30 bg-card text-card-foreground",
+          duration: 5000,
         });
         reset();
         onClose();
       } else {
-       toast({
+        toast({
           variant: "destructive",
           title: "Submission failed",
           description: result.error || "Something went wrong. Try again.",
-          className: "border border-purple-600 bg-neutral-900 text-white",
+          className: "border border-primary/30 bg-card text-card-foreground",
         });
       }
     } catch (error) {
@@ -142,8 +135,7 @@ export default function TechInterestFormPopup({
       error: errors.portfolio,
       validation: {
         pattern: {
-          value:
-            /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/[\w\d-./?%&=]*)?$/,
+          value: /^(https?:\/\/)?([\w\d-]+\.)+\w{2,}(\/[\w\d-./?%&=]*)?$/,
           message: "Invalid URL",
         },
       },
@@ -158,37 +150,48 @@ export default function TechInterestFormPopup({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#000000CC] p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#10002B]/40 backdrop-blur-sm p-4"
           aria-modal="true"
           role="dialog"
         >
           <motion.div
-            initial={{ x: "100%", opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: "100%", opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ y: 40, opacity: 0, scale: 0.96 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: 40, opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.35, ease: [0.21, 0.6, 0.35, 1] }}
             className="w-full max-w-lg"
           >
-            <Card className="bg-black/90 border-purple-600/70 backdrop-blur-lg w-full">
-              <CardContent className="p-6 sm:p-8">
-                <h3 className="text-2xl font-bold mb-6 text-purple-400 text-center">
-                  Apply to join XyphX
-                </h3>
+            <div className="relative w-full overflow-hidden rounded-[2rem] glass-strong shadow-depth">
+              {/* Spot removed */}
 
-                {/* -------- loading spinner overlay -------- */}
+              <div className="relative p-6 sm:p-8 max-h-[85vh] overflow-y-auto">
+                <button
+                  type="button"
+                  onClick={() => {
+                    reset();
+                    onClose();
+                  }}
+                  disabled={loading}
+                  aria-label="Close"
+                  className="absolute right-5 top-5 flex h-9 w-9 items-center justify-center rounded-full text-black/50 transition-colors hover:bg-purple-100 hover:text-primary"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+
+                <h3 className="mb-1 text-center font-display text-2xl font-bold tracking-tight text-black">
+                  Apply to join <span className="text-gradient">XyphX</span>
+                </h3>
+                <p className="mb-6 text-center text-sm text-black/55">
+                  Tell us a bit about yourself — we read every application.
+                </p>
+
                 {loading ? (
                   <div className="flex flex-col items-center justify-center py-16">
-                    <p className="text-purple-300 mb-4">
-                      Submitting your application...
-                      </p>
-                    <Loader2 className="h-10 w-10 animate-spin text-purple-400" />
+                    <p className="mb-4 text-black/60">Submitting your application...</p>
+                    <Loader2 className="h-10 w-10 animate-spin text-primary" />
                   </div>
                 ) : (
-                  /* -------- actual form -------- */
-                  <form
-                    onSubmit={handleSubmit(onSubmit)}
-                    className="text-white"
-                  >
+                  <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-foreground">
                     {formFields.map((field, i) => (
                       <motion.div
                         key={field.name}
@@ -197,31 +200,20 @@ export default function TechInterestFormPopup({
                         animate="visible"
                         variants={fieldVariants}
                       >
-                        <label className="block mb-1 text-purple-300">
-                          {field.label}
-                        </label>
+                        <label className="mb-1.5 block text-sm font-medium text-black/70">{field.label}</label>
                         <input
-                          {...register(
-                            field.name as keyof FormData,
-                            field.validation
-                          )}
+                          {...register(field.name as keyof FormData, field.validation)}
                           type={field.type}
                           disabled={loading}
-                          className={`w-full p-3 rounded-md bg-purple-900 bg-opacity-30 border focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-                            field.error
-                              ? "border-red-500"
-                              : "border-purple-700"
+                          className={`w-full rounded-2xl border bg-white/80 p-3 text-black shadow-sm transition-all duration-300 placeholder:text-black/30 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/40 focus:shadow-glow ${
+                            field.error ? "border-red-400" : "border-primary/15"
                           }`}
                         />
-                        {field.error && (
-                          <p className="text-red-500 mt-1 text-sm">
-                            {field.error.message}
-                          </p>
-                        )}
+                        {field.error && <p className="mt-1 text-sm text-red-500">{field.error.message}</p>}
                       </motion.div>
                     ))}
 
-                    <div className="flex justify-between items-center mt-6">
+                    <div className="flex items-center justify-between pt-2">
                       <Button
                         type="button"
                         variant="secondary"
@@ -230,22 +222,22 @@ export default function TechInterestFormPopup({
                           reset();
                           onClose();
                         }}
-                        className="border-2 border-purple-600 bg-gray-900 hover:bg-purple-600 text-white px-6 py-2 rounded transition-all duration-200"
+                        className="rounded-full border border-primary/25 bg-white px-6 py-2 text-black/70 transition-all duration-300 hover:bg-purple-50 hover:text-primary"
                       >
                         Cancel
                       </Button>
                       <Button
                         type="submit"
                         disabled={loading}
-                        className="bg-gradient-to-r from-purple-700 to-purple-600 hover:from-purple-800 hover:to-purple-700 text-white px-8 py-2 rounded transition-all duration-200"
+                        className="rounded-full bg-[linear-gradient(120deg,#5F00B7,#9B30FF)] px-8 py-2 font-semibold text-white shadow-glow transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_-6px_rgba(95,0,183,0.6)]"
                       >
                         Submit
                       </Button>
                     </div>
                   </form>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </motion.div>
         </motion.div>
       )}

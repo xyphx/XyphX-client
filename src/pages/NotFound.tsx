@@ -1,46 +1,43 @@
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
-import { Home } from "lucide-react"; // Importing the icon
+import { motion } from "framer-motion";
+import MagneticButton from "@/components/motion/MagneticButton";
 
 const NotFound = () => {
   const location = useLocation();
 
   useEffect(() => {
-    console.error(
-      "404 Error: User attempted to access non-existent route:",
-      location.pathname
-    );
+    console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-black via-black to-purple-950 p-6">
-      <div className="text-center animate-fade-in">
-        <img
-          src="/logo_dark.png"
-          alt="Logo"
-          className="mx-auto mb-6 w-48 h-48 drop-shadow-lg"
-        />
-        <h1 className="text-6xl font-extrabold text-white mb-4">404 Page Not Found!</h1>
-       <br></br>
-       <br></br>
-        <a
-          href="/"
-          className="inline-flex items-center gap-2 bg-black border-2 border-violet-500 hover:bg-violet-700 text-white font-semibold py-2 px-4 rounded shadow transition duration-300"
-        >
-          
-          <Home className="w-5 h-5" />
-          Back to Home
-        </a>
-      </div>
-      <style>{`
-        .animate-fade-in {
-          animation: fadeIn 1s ease-in-out;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `}</style>
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-paper p-6">
+      <div className="absolute inset-0 bg-field [mask-image:radial-gradient(ellipse_85%_75%_at_50%_45%,black_30%,transparent_82%)]" aria-hidden />
+
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.9, ease: [0.65, 0, 0.35, 1] }}
+        className="relative text-center"
+      >
+        <p className="label-mono mb-6 text-ink">Error — off the field</p>
+
+        <p className="font-display text-[clamp(6rem,22vw,14rem)] font-bold leading-none tracking-[-0.03em] text-stroke-ink select-none" aria-hidden>
+          404
+        </p>
+
+        <h1 className="mt-4 font-display text-2xl md:text-3xl font-bold tracking-tight text-carbon">
+          Page not found<span className="text-ink">.</span>
+        </h1>
+        <p className="mx-auto mt-4 mb-12 max-w-md text-carbon/55">
+          The coordinates you followed don't exist on this drawing. Let's get you back to the origin.
+        </p>
+
+        <MagneticButton onClick={() => (window.location.href = "/")}>
+          Back to home
+          <span aria-hidden>→</span>
+        </MagneticButton>
+      </motion.div>
     </div>
   );
 };
