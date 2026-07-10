@@ -110,7 +110,7 @@ export default function Pricing() {
                       : "text-foreground/60 hover:text-foreground"
                   }`}
                 >
-                  Annually <span className="text-ink/80 font-bold ml-1">(-20%)</span>
+                  Annually <span className={`font-bold ml-1 ${billingPeriod === "annually" ? "text-white/80" : "text-ink/80"}`}>(-20%)</span>
                 </button>
               </div>
             </Reveal>
@@ -209,7 +209,7 @@ export default function Pricing() {
         </div>
       </main>
 
-      <Footer />
+      <Footer showContact={false} />
     </div>
   );
 }

@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
 import { setLenis, scrollToId } from "@/lib/scroll";
-import CustomCursor from "@/components/motion/CustomCursor";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import About from "@/components/landing/About";
@@ -49,7 +48,6 @@ const Index = () => {
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip">
       <Background />
-      <CustomCursor />
       <Navbar />
       <main>
         <Hero />

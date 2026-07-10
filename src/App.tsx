@@ -14,6 +14,7 @@ import { ToastProvider } from "@radix-ui/react-toast";
 import SeoHead from "./components/SeoHead";
 import { useAuth } from "./hooks/useAuth";
 import { Navigate } from "react-router-dom";
+import CustomCursor from "@/components/motion/CustomCursor";
 
 const queryClient = new QueryClient();
 
@@ -147,6 +148,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <ToastProvider>
+      <CustomCursor />
       <Toaster />
       <Sonner />
       <BrowserRouter>

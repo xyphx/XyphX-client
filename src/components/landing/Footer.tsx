@@ -9,12 +9,14 @@ const social = [
   { label: "GitHub", href: "https://github.com/xyphx" },
 ];
 
-export default function Footer() {
+export default function Footer({ showContact = true }: { showContact?: boolean }) {
   return (
-    <footer id="contact" className="relative z-10 px-6 md:px-10 pt-32 pb-8 overflow-hidden">
+    <footer id={showContact ? "contact" : undefined} className="relative z-10 px-6 md:px-10 pt-32 pb-8 overflow-hidden">
       <div className="mx-auto max-w-[96rem]">
         {/* the invitation */}
-        <Reveal blur={false}>
+        {showContact && (
+        <div className="contact-section">
+          <Reveal blur={false}>
           <p className="label-mono mb-8 text-ink">06 — Contact</p>
           <h2 className="max-w-4xl font-display text-4xl md:text-6xl font-bold uppercase leading-[1.02] tracking-[-0.02em] text-carbon">
             Let's build the future together<span className="text-ink">.</span>
@@ -64,6 +66,8 @@ export default function Footer() {
             </div>
           </Reveal>
         </div>
+        </div>
+        )}
 
         {/* ledger */}
         <Reveal blur={false} delay={0.2}>

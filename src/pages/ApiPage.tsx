@@ -464,7 +464,7 @@ export default function ApiPage() {
         </div>
       </main>
 
-      <Footer />
+      <Footer showContact={false} />
     </div>
   );
 }
