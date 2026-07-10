@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import Lenis from "lenis";
-import { setLenis } from "@/lib/scroll";
+import { setLenis, scrollToId } from "@/lib/scroll";
 import CustomCursor from "@/components/motion/CustomCursor";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
@@ -29,6 +29,15 @@ const Index = () => {
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
+
+    // Scroll to target hash fragment on initial page render
+    const hash = window.location.hash;
+    if (hash) {
+      const id = hash.replace("#", "");
+      setTimeout(() => {
+        scrollToId(id);
+      }, 400);
+    }
 
     return () => {
       cancelAnimationFrame(raf);

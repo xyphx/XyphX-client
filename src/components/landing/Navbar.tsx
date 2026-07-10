@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { scrollToId, scrollToTop } from "@/lib/scroll";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
-const links: Array<{ label: string; id?: string; href?: string }> = [
-  { label: "About", id: "about" },
-  { label: "Products", id: "products" },
-  { label: "Roadmap", id: "roadmap" },
-  { label: "Services", id: "services" },
+const links: Array<{ label: string; id?: string; path?: string; href?: string }> = [
+  { label: "Products", id: "products", path: "/" },
+  { label: "Pricing", path: "/pricing" },
+  { label: "API", path: "/console" },
+  { label: "Contact", id: "contact", path: "/" },
   { label: "Careers", href: "https://careers.xyphx.com" },
 ];
 
@@ -15,6 +17,9 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 30 });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -22,6 +27,47 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  const displayLinks = links.filter(l => {
+    if (l.label === "API" && location.pathname === "/console") {
+      return false;
+    }
+    return true;
+  }).map(l => {
+    if (l.id === "products" && location.pathname !== "/") {
+      return { ...l, label: "Home", id: undefined };
+    }
+    return l;
+  });
+
+  const handleActionClickBtn = async () => {
+    setOpen(false);
+    if (user) {
+      if (location.pathname === "/console") {
+        await logout();
+        navigate("/");
+      } else {
+        navigate("/console");
+      }
+    } else {
+      navigate("/login");
+    }
+  };
+
+  const actionLabel = user 
+    ? (location.pathname === "/console" ? "Logout" : "Console") 
+    : "Continue";
+
+  const handleLinkClick = (l: typeof links[0]) => {
+    setOpen(false);
+    if (l.id && location.pathname === "/") {
+      scrollToId(l.id);
+    } else if (l.id) {
+      navigate(`${l.path}#${l.id}`);
+    } else if (l.path) {
+      navigate(l.path);
+    }
+  };
 
   const scrollTo = (id: string) => {
     setOpen(false);
@@ -60,7 +106,7 @@ export default function Navbar() {
 
           {/* desktop index */}
           <div className="hidden md:flex items-center gap-8">
-            {links.map((l, i) =>
+            {displayLinks.map((l, i) =>
               l.href ? (
                 <a
                   key={l.label}
@@ -75,7 +121,7 @@ export default function Navbar() {
               ) : (
                 <button
                   key={l.label}
-                  onClick={() => scrollTo(l.id!)}
+                  onClick={() => handleLinkClick(l)}
                   className="label-mono link-draw text-carbon/60 hover:text-ink transition-colors duration-300"
                 >
                   <span className="text-ink/50 mr-1.5">0{i + 1}</span>
@@ -84,10 +130,10 @@ export default function Navbar() {
               )
             )}
             <button
-              onClick={() => scrollTo("contact")}
+              onClick={handleActionClickBtn}
               className="label-mono rounded-full border border-carbon/20 px-5 py-2.5 text-carbon transition-all duration-300 hover:border-ink hover:bg-ink hover:text-white"
             >
-              Contact
+              {actionLabel}
             </button>
           </div>
 
@@ -122,7 +168,7 @@ export default function Navbar() {
             className="fixed inset-0 z-[55] md:hidden bg-paper pt-24 px-6 flex flex-col"
           >
             <div className="border-t border-line" />
-            {links.map((l, i) => (
+            {displayLinks.map((l, i) => (
               <motion.div
                 key={l.label}
                 initial={{ opacity: 0, x: -16 }}
@@ -144,7 +190,7 @@ export default function Navbar() {
                     </span>
                   </a>
                 ) : (
-                  <button onClick={() => scrollTo(l.id!)} className="flex w-full items-baseline gap-4 py-5 text-left">
+                  <button onClick={() => handleLinkClick(l)} className="flex w-full items-baseline gap-4 py-5 text-left">
                     <span className="label-mono text-ink/60">0{i + 1}</span>
                     <span className="font-display text-4xl font-bold tracking-tight text-carbon">{l.label}</span>
                   </button>
@@ -152,10 +198,10 @@ export default function Navbar() {
               </motion.div>
             ))}
             <button
-              onClick={() => scrollTo("contact")}
+              onClick={handleActionClickBtn}
               className="mt-8 rounded-full bg-ink px-6 py-4 font-display font-medium text-white"
             >
-              Contact
+              {actionLabel}
             </button>
             <p className="label-mono mt-auto mb-8 text-carbon/40">XYPHX — Engineering the Future of Tech</p>
           </motion.div>

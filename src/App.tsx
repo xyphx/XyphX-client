@@ -7,9 +7,13 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
 import AdminDashboard from "./pages/AdminDashboard";
+import Pricing from "./pages/Pricing";
+import ApiPage from "./pages/ApiPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { ToastProvider } from "@radix-ui/react-toast";
 import SeoHead from "./components/SeoHead";
+import { useAuth } from "./hooks/useAuth";
+import { Navigate } from "react-router-dom";
 
 const queryClient = new QueryClient();
 
@@ -62,17 +66,43 @@ const homeSchema = [
   }
 ];
 
-const HomePage = () => (
-  <>
+const HomePage = () => {
+  return (
+    <>
+      <SeoHead
+        title="XyphX – Engineering the Future of Tech"
+        description="XyphX is an enterprise technology company building next-gen software, cloud infrastructure, and intelligent AI products. Explore DotX, ShowMySkills, and XyphX OS."
+        keywords="XyphX, AI software engineering, enterprise automation, student portfolio, developer platform, DotX, ShowMySkills, XyphX OS"
+        canonicalPath="/"
+        schema={homeSchema}
+      />
+      <Index />
+    </>
+  );
+};
+
+const PricingPage = () => (
+  <ProtectedRoute>
     <SeoHead
-      title="XyphX – Engineering the Future of Tech"
-      description="XyphX is an enterprise technology company building next-gen software, cloud infrastructure, and intelligent AI products. Explore DotX, ShowMySkills, and XyphX OS."
-      keywords="XyphX, AI software engineering, enterprise automation, student portfolio, developer platform, DotX, ShowMySkills, XyphX OS"
-      canonicalPath="/"
-      schema={homeSchema}
+      title="Pricing Options | XyphX"
+      description="Explore flexible monthly and annual subscription options for scaled access to the XyphX developer framework and DotX AI agents."
+      keywords="XyphX pricing, developer plans, DotX subscription, API costs"
+      canonicalPath="/pricing"
     />
-    <Index />
-  </>
+    <Pricing />
+  </ProtectedRoute>
+);
+
+const ApiPageWrapper = () => (
+  <ProtectedRoute>
+    <SeoHead
+      title="Developer API Portal | XyphX"
+      description="Generate API Keys, explore query code snippets, and interface your developer workspaces directly with the XyphX execution loop."
+      keywords="XyphX API, developer portal, generate API key, integration token"
+      canonicalPath="/console"
+    />
+    <ApiPage />
+  </ProtectedRoute>
 );
 
 const LoginPage = () => (
@@ -122,6 +152,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/pricing" element={<PricingPage />} />
+          <Route path="/console" element={<ApiPageWrapper />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/admin" element={<AdminPage />} />
           <Route path="*" element={<NotFoundPage />} />

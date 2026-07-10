@@ -21,4 +21,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  // force full page reload for HMR recovery 5
 }));
