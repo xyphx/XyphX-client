@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,7 +26,7 @@ const homeSchema = [
     "name": "XyphX",
     "url": "https://xyphx.com",
     "logo": "https://xyphx.com/logo.png",
-    "description": "XyphX builds next-gen software, cloud tools, and intelligent digital products for modern enterprises.",
+    "description": "XyphX is an enterprise technology and AI company building next-generation software, cloud infrastructure, and intelligent digital products.",
     "contactPoint": {
       "@type": "ContactPoint",
       "contactType": "customer support",
@@ -33,7 +34,8 @@ const homeSchema = [
     },
     "sameAs": [
       "https://github.com/xyphx",
-      "https://linkedin.com/company/xyphx"
+      "https://linkedin.com/company/xyphx",
+      "https://careers.xyphx.com"
     ]
   },
   {
@@ -64,6 +66,13 @@ const homeSchema = [
     "operatingSystem": "All",
     "url": "https://showmyskills.xyphx.com/",
     "description": "Student portfolio, skills, achievements, and career showcase platform."
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "XyphX Careers",
+    "url": "https://careers.xyphx.com/",
+    "description": "Career opportunities and open positions at XyphX."
   }
 ];
 
@@ -72,7 +81,7 @@ const HomePage = () => {
     <>
       <SeoHead
         title="XyphX – Engineering the Future of Tech"
-        description="XyphX is an enterprise technology company building next-gen software, cloud infrastructure, and intelligent AI products. Explore DotX, ShowMySkills, and XyphX OS."
+        description="XyphX is an enterprise AI and technology company building next-generation software, cloud infrastructure, and intelligent products like DotX and ShowMySkills."
         keywords="XyphX, AI software engineering, enterprise automation, student portfolio, developer platform, DotX, ShowMySkills, XyphX OS"
         canonicalPath="/"
         schema={homeSchema}
@@ -86,7 +95,7 @@ const PricingPage = () => (
   <ProtectedRoute>
     <SeoHead
       title="Pricing Options | XyphX"
-      description="Explore flexible monthly and annual subscription options for scaled access to the XyphX developer framework and DotX AI agents."
+      description="Explore flexible monthly and annual subscription options for scaled access to the XyphX developer framework, APIs, and DotX AI agents."
       keywords="XyphX pricing, developer plans, DotX subscription, API costs"
       canonicalPath="/pricing"
     />
@@ -98,8 +107,8 @@ const ApiPageWrapper = () => (
   <ProtectedRoute>
     <SeoHead
       title="Developer API Portal | XyphX"
-      description="Generate API Keys, explore query code snippets, and interface your developer workspaces directly with the XyphX execution loop."
-      keywords="XyphX API, developer portal, generate API key, integration token"
+      description="Generate API Keys and interface your developer workspaces directly with the XyphX AI execution loop and enterprise APIs."
+      keywords="XyphX API, developer portal, generate API key, integration token, enterprise AI API"
       canonicalPath="/console"
     />
     <ApiPage />
@@ -110,27 +119,28 @@ const LoginPage = () => (
   <>
     <SeoHead
       title="Login | XyphX"
-      description="Securely sign in to your XyphX account to access enterprise products, workspace, and management tools."
+      description="Securely sign in to your XyphX account to access enterprise products, AI workspace, and management tools."
       canonicalPath="/login"
-      robots="noindex, nofollow"
+      robots="index, follow"
     />
     <Login />
   </>
 );
 
-const AdminPage = () => (
-  <>
+const AdminPage = () => {
+  useEffect(() => {
+    window.location.replace("https://admin.xyphx.com");
+  }, []);
+  
+  return (
     <SeoHead
       title="Admin Portal | XyphX"
-      description="Public administration portal for managing XyphX platforms and ecosystem services."
+      description="Administration portal for managing XyphX platforms, ecosystem services, and enterprise controls."
       canonicalPath="/admin"
-      robots="noindex, nofollow, noarchive"
+      robots="index, follow"
     />
-    <ProtectedRoute>
-      <AdminDashboard />
-    </ProtectedRoute>
-  </>
-);
+  );
+};
 
 const NotFoundPage = () => (
   <>
