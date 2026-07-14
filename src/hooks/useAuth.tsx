@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Dummy user type to replace Firebase User
 interface User {
   uid: string;
   email: string | null;
