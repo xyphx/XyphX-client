@@ -37,16 +37,16 @@ const Background = () => {
           style={{ y: mobileY, x: mobileX, opacity: 0.04 }}
           className="w-full h-full"
         >
-          <img src="/logo.png" alt="" className="w-full h-full object-contain filter grayscale" />
+          <img src="/logo.png" alt="" className="w-full h-full object-contain grayscale" />
         </motion.div>
       </div>
 
       {/* Desktop background logo (faded, shifts on scroll) */}
       <motion.div
         style={{ y: washY, x: washX, opacity: 0.05 }}
-        className="absolute -top-[10%] -left-[10%] w-[70vw] max-w-[60rem] aspect-square pointer-events-none hidden md:block"
+        className="absolute -top-[10%] -left-[10%] w-[70vw] max-w-[60rem] aspect-square pointer-events-none hidden md:block will-change-transform"
       >
-        <img src="/logo.png" alt="" className="w-full h-full object-contain mix-blend-multiply filter grayscale" />
+        <img src="/logo.png" alt="" className="w-full h-full object-contain grayscale" />
       </motion.div>
 
       {/* registration marks */}
@@ -67,7 +67,7 @@ const Background = () => {
 
 
       {/* film grain */}
-      <div className="absolute inset-0 bg-noise opacity-[0.04] mix-blend-multiply" />
+      <div className="absolute inset-0 bg-noise opacity-[0.04] pointer-events-none" />
     </div>
   );
 };

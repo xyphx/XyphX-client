@@ -80,9 +80,22 @@ export default function ApiPage() {
   };
 
   const handleActionClick = (id: string, actionType: 'view' | 'copy' | 'delete') => {
-    setActionModal({ isOpen: true, actionType, keyId: id });
-    setPasswordInput("");
-    setModalError("");
+    if (actionType === 'delete') {
+      setActionModal({ isOpen: true, actionType, keyId: id });
+      setPasswordInput("");
+      setModalError("");
+    } else {
+      const keyItem = keys.find(k => k.id === id);
+      if (!keyItem) return;
+
+      if (actionType === 'view') {
+        setKeys(keys.map((k) => (k.id === id ? { ...k, visible: !k.visible } : k)));
+      } else if (actionType === 'copy') {
+        navigator.clipboard.writeText(keyItem.key);
+        setCopiedKeyId(id);
+        setTimeout(() => setCopiedKeyId(null), 2000);
+      }
+    }
   };
 
   const confirmAction = () => {
@@ -129,7 +142,7 @@ export default function ApiPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/90"
               onClick={closeModal}
             />
             <motion.div 
@@ -192,7 +205,7 @@ export default function ApiPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-background/80 backdrop-blur-sm"
+              className="absolute inset-0 bg-background/90"
               onClick={() => {
                 setIsCreateModalOpen(false);
                 setError("");
@@ -324,7 +337,7 @@ export default function ApiPage() {
             {/* API Key Manager (Columns 3) */}
             <div className="lg:col-span-3 space-y-8">
               <Reveal blur={false} delay={0.1}>
-                <div className="bg-paper/40 backdrop-blur-md border border-line-soft rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div className="bg-paper border border-line-soft rounded-3xl p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center justify-between mb-8 pb-8 border-b border-line-soft">
                     <div className="flex items-center gap-3">
                       <Key className="h-6 w-6 text-ink" />
@@ -401,7 +414,7 @@ export default function ApiPage() {
             {/* Profile & Usage (Columns 2) */}
             <div className="lg:col-span-2 space-y-6">
               <Reveal blur={false} delay={0.2}>
-                <div className="bg-paper/40 backdrop-blur-md border border-line-soft rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div className="bg-paper border border-line-soft rounded-3xl p-6 sm:p-8 shadow-sm">
                   <div className="flex items-center gap-3 mb-6">
                     <User className="h-6 w-6 text-ink" />
                     <h2 className="font-display text-xl font-bold text-carbon">Profile Info</h2>

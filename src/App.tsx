@@ -16,6 +16,7 @@ import SeoHead from "./components/SeoHead";
 import { useAuth } from "./hooks/useAuth";
 import { Navigate } from "react-router-dom";
 import CustomCursor from "@/components/motion/CustomCursor";
+import ScrollToTop from "./components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -162,6 +163,7 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/pricing" element={<PricingPage />} />

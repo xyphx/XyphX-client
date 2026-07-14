@@ -91,7 +91,7 @@ export default function Pricing() {
 
             {/* Toggle */}
             <Reveal blur={false} delay={0.1}>
-              <div className="mt-8 inline-flex items-center gap-4 bg-paper/60 backdrop-blur-md border border-line-soft p-1 rounded-full">
+              <div className="mt-8 inline-flex items-center gap-4 bg-paper border border-line-soft p-1 rounded-full">
                 <button
                   onClick={() => setBillingPeriod("monthly")}
                   className={`label-mono px-6 py-2 rounded-full text-xs transition-all duration-300 ${
@@ -123,7 +123,7 @@ export default function Pricing() {
               return (
                 <Reveal key={plan.name} blur={false} delay={0.15 + i * 0.08}>
                   <div
-                    className={`relative flex flex-col h-full bg-paper/40 backdrop-blur-md border rounded-2xl p-8 transition-all duration-500 ${
+                    className={`relative flex flex-col h-full bg-paper border rounded-2xl p-8 transition-all duration-500 ${
                       plan.disabled
                         ? "opacity-40 grayscale-[50%]"
                         : "hover:scale-[1.02] hover:bg-paper/70"

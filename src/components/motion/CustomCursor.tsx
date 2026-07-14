@@ -59,7 +59,7 @@ export default function CustomCursor() {
       {/* dot — locked to the pointer */}
       <motion.div
         aria-hidden
-        className="pointer-events-none fixed left-0 top-0 z-[110] h-1.5 w-1.5 rounded-full bg-ink"
+        className="pointer-events-none fixed left-0 top-0 z-[110] h-1.5 w-1.5 rounded-full bg-ink will-change-transform"
         style={{ x, y, translateX: "-50%", translateY: "-50%" }}
         animate={{ opacity: label ? 0 : 1 }}
         transition={{ duration: 0.15 }}
@@ -67,7 +67,7 @@ export default function CustomCursor() {
       {/* ring — trails on a spring, morphs over targets */}
       <motion.div
         aria-hidden
-        className={`pointer-events-none fixed left-0 top-0 z-[109] flex items-center justify-center rounded-full ${
+        className={`pointer-events-none fixed left-0 top-0 z-[109] flex items-center justify-center rounded-full will-change-transform ${
           label ? "bg-ink" : "border border-ink/50"
         }`}
         style={{ x: ringX, y: ringY, translateX: "-50%", translateY: "-50%" }}

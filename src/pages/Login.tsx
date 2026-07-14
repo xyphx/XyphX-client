@@ -20,7 +20,7 @@ const Login: React.FC = () => {
     <>
       <Navbar />
       <div className="fixed inset-0 z-0 h-screen overflow-hidden pointer-events-none select-none">
-        <div className="absolute inset-0 z-50 bg-background/50 backdrop-blur-md" />
+        <div className="absolute inset-0 z-50 bg-background/90" />
         <Pricing />
       </div>
 
