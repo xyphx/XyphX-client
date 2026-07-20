@@ -43,6 +43,8 @@ export default function ApiPage() {
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [sendingEmailKeyId, setSendingEmailKeyId] = useState<string | null>(null);
+  const [sentEmailKeyId, setSentEmailKeyId] = useState<string | null>(null);
   
   const [error, setError] = useState("");
 
@@ -53,6 +55,12 @@ export default function ApiPage() {
   }>({ isOpen: false, actionType: null, keyId: null });
   const [passwordInput, setPasswordInput] = useState("");
   const [modalError, setModalError] = useState("");
+
+  const [emailConfirmModal, setEmailConfirmModal] = useState<{
+    isOpen: boolean;
+    keyId: string | null;
+    keyLabel: string | null;
+  }>({ isOpen: false, keyId: null, keyLabel: null });
 
   useEffect(() => {
     fetchProfile();
@@ -167,6 +175,30 @@ export default function ApiPage() {
     }
   };
 
+  const openEmailConfirmModal = (keyId: string, keyLabel: string) => {
+    setEmailConfirmModal({ isOpen: true, keyId, keyLabel });
+  };
+
+  const handleConfirmSendEmail = async () => {
+    const { keyId } = emailConfirmModal;
+    if (!keyId) return;
+
+    setEmailConfirmModal({ isOpen: false, keyId: null, keyLabel: null });
+    setSendingEmailKeyId(keyId);
+
+    try {
+      const res = await api.post(`/api/apikeys/${keyId}/send-password`);
+      if (res.ok) {
+        setSentEmailKeyId(keyId);
+        setTimeout(() => setSentEmailKeyId(null), 3000);
+      }
+    } catch (e) {
+      console.error("Failed to send new password email", e);
+    } finally {
+      setSendingEmailKeyId(null);
+    }
+  };
+
   const confirmAction = async () => {
     const { keyId, actionType } = actionModal;
     if (!keyId) return;
@@ -206,6 +238,69 @@ export default function ApiPage() {
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip font-sans">
       <Background />
       <Navbar />
+
+      {/* Custom Confirmation Modal for Sending Password Email */}
+      <AnimatePresence>
+        {emailConfirmModal.isOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+              className="absolute inset-0 bg-background/80"
+              onClick={() => setEmailConfirmModal({ isOpen: false, keyId: null, keyLabel: null })}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              transition={{ duration: 0.15, ease: "easeOut" }}
+              className="bg-paper border border-line-soft rounded-2xl p-6 max-w-sm w-full shadow-xl relative z-10 will-change-transform"
+            >
+              <button 
+                onClick={() => setEmailConfirmModal({ isOpen: false, keyId: null, keyLabel: null })} 
+                className="absolute top-4 right-4 text-carbon/40 hover:text-carbon transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              <div className="mb-6 text-center mt-2">
+                <div className="mx-auto w-12 h-12 bg-ink/10 rounded-full flex items-center justify-center mb-4 text-ink">
+                  <Mail className="w-6 h-6" />
+                </div>
+                <h3 className="text-xl font-display font-bold text-carbon mb-2">
+                  Send New Password?
+                </h3>
+                <p className="text-sm text-carbon/60">
+                  Are you sure you want to generate a new 6-digit API password and send it to your email?
+                </p>
+                {emailConfirmModal.keyLabel && (
+                  <div className="mt-3 inline-block bg-ink/5 border border-ink/10 text-ink text-xs font-semibold px-3 py-1 rounded-full">
+                    Key: {emailConfirmModal.keyLabel}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setEmailConfirmModal({ isOpen: false, keyId: null, keyLabel: null })}
+                  className="flex-1 bg-background border border-line-soft text-carbon/80 hover:text-carbon py-3 rounded-xl font-semibold text-sm transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={handleConfirmSendEmail}
+                  className="flex-1 bg-ink text-white py-3 rounded-xl font-semibold text-sm transition-all hover:bg-ink-dark shadow-md shadow-ink/20"
+                >
+                  Send Email
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* Action Modal for Password Verification */}
       <AnimatePresence>
@@ -458,23 +553,35 @@ export default function ApiPage() {
                               <button
                                 onClick={() => handleActionClick(k.id, 'view')}
                                 title="Toggle Visibility"
-                                className="flex items-center justify-center w-11 h-11 border border-line-soft text-carbon/60 hover:text-carbon hover:bg-paper rounded-xl transition-all shadow-sm"
+                                className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 border border-line-soft text-carbon/60 hover:text-carbon hover:bg-paper rounded-xl transition-all shadow-sm"
                               >
-                                {!k.visible ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
+                                {!k.visible ? <EyeOff className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]" /> : <Eye className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]" />}
                               </button>
                               <button
                                 onClick={() => handleActionClick(k.id, 'copy')}
                                 title="Copy API Key"
-                                className="flex items-center justify-center w-11 h-11 border border-line-soft text-carbon/60 hover:text-ink hover:bg-paper rounded-xl transition-all shadow-sm"
+                                className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 border border-line-soft text-carbon/60 hover:text-ink hover:bg-paper rounded-xl transition-all shadow-sm"
                               >
-                                {copiedKeyId === k.id ? <Check className="h-[18px] w-[18px] text-ink" /> : <Copy className="h-[18px] w-[18px]" />}
+                                {copiedKeyId === k.id ? <Check className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px] text-ink" /> : <Copy className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]" />}
                               </button>
-                                                            <button
+                              <button
+                                onClick={() => openEmailConfirmModal(k.id, k.label)}
+                                disabled={sendingEmailKeyId === k.id}
+                                title="Send New Password to Email"
+                                className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 border border-line-soft text-carbon/60 hover:text-ink hover:bg-paper rounded-xl transition-all shadow-sm disabled:opacity-50"
+                              >
+                                {sentEmailKeyId === k.id ? (
+                                  <Check className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px] text-green-600" />
+                                ) : (
+                                  <Mail className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]" />
+                                )}
+                              </button>
+                              <button
                                 onClick={() => handleActionClick(k.id, 'delete')}
                                 title="Revoke Token"
-                                className="flex items-center justify-center w-11 h-11 border border-line-soft text-carbon/40 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all shadow-sm"
+                                className="flex items-center justify-center w-9 h-9 sm:w-11 sm:h-11 border border-line-soft text-carbon/40 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all shadow-sm"
                               >
-                                <Trash2 className="h-[18px] w-[18px]" />
+                                <Trash2 className="h-[16px] w-[16px] sm:h-[18px] sm:w-[18px]" />
                               </button>
                             </div>
                           </div>
