@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user) {
     // Redirect to login but save the current location to come back to
     return <Navigate to="/login" state={{ from: location }} replace />;
   }

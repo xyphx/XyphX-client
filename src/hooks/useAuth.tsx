@@ -1,86 +1,90 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-
-interface User {
-  uid: string;
-  email: string | null;
-  displayName: string | null;
-  photoURL: string | null;
-}
-
-interface AuthContextType {
-  user: User | null;
-  isAdmin: boolean;
-  loading: boolean;
-  login: () => Promise<void>;
-  logout: () => Promise<void>;
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../store/store";
+import { setCredentials, logout as reduxLogout, setInitialized } from "../store/authSlice";
+import { api } from "../lib/api";
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch();
+
+  const fetchUser = async () => {
+    try {
+      // First, try to refresh token (this will get the access token from the cookie and put it in Redux)
+      // Since it's the initial load, we assume the user might have a valid refresh cookie
+      const refreshResponse = await api.post("/api/auth/refresh", {});
+      if (refreshResponse.ok) {
+        const refreshData = await refreshResponse.json();
+        dispatch(setCredentials({ accessToken: refreshData.accessToken }));
+      }
+
+      // Then fetch the user profile using the new enterprise API client
+      const response = await api.get("/api/users/me");
+
+      if (response.ok) {
+        const data = await response.json();
+        // Assume backend returns id, email, name, picture
+        dispatch(
+          setCredentials({
+            accessToken: store.getState().auth.accessToken || '',
+            user: {
+              uid: data.id,
+              email: data.email,
+              displayName: data.name,
+              photoURL: data.picture,
+            },
+            isAdmin: data.role === 'ROLE_ADMIN',
+          })
+        );
+      } else {
+        dispatch(reduxLogout());
+      }
+    } catch (error) {
+      console.error("Failed to fetch user profile:", error);
+      dispatch(reduxLogout());
+    } finally {
+      dispatch(setInitialized());
+    }
+  };
 
   useEffect(() => {
-    // Check local storage for persistent dummy login
-    const storedUser = localStorage.getItem('dummyUser');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      setIsAdmin(true);
-    }
-    setLoading(false);
+    fetchUser();
   }, []);
 
-  const login = async () => {
-    try {
-      // Simulate network delay
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      
-      const dummyUser: User = {
-        uid: "dummy-admin-123",
-        email: "admin@xyphx.com",
-        displayName: "XyphX Admin",
-        photoURL: null,
-      };
+  return <>{children}</>;
+};
 
-      localStorage.setItem('dummyUser', JSON.stringify(dummyUser));
-      setUser(dummyUser);
-      setIsAdmin(true);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    } finally {
-      setLoading(false);
-    }
+import { store } from "../store/store";
+
+export const useAuth = () => {
+  const authState = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch();
+  // We keep a small local state just for loading during explicit login/logout calls if needed
+  const [localLoading, setLocalLoading] = useState(false);
+
+  const login = async () => {
+    // This is called by AuthSuccess after setting the token (or directly on redirect)
+    // We can just trigger a page reload which will hit AuthProvider's fetchUser, or we could duplicate fetchUser here.
+    window.location.reload();
   };
 
   const logout = async () => {
     try {
-      setLoading(true);
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      localStorage.removeItem('dummyUser');
-      setUser(null);
-      setIsAdmin(false);
+      setLocalLoading(true);
+      await api.post("/api/auth/logout", {});
+      dispatch(reduxLogout());
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      setLoading(false);
+      setLocalLoading(false);
+      window.location.href = '/login';
     }
   };
 
-  return (
-    <AuthContext.Provider value={{ user, isAdmin, loading, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+  return {
+    user: authState.user,
+    isAdmin: authState.isAdmin,
+    loading: localLoading || !authState.isInitialized,
+    login,
+    logout,
+  };
 };

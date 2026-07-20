@@ -27,39 +27,28 @@ export default function Products() {
   // illustration panel removed per request
 
   useEffect(() => {
-    // Dummy products
-    const dummyProducts: Product[] = [
-      {
-        id: "1",
-        name: "ShowMySkills",
-        description: "Student portfolio, skills, achievements, and career showcase platform.",
-        status: "Active",
-        rank: 2,
-        link: "https://showmyskills.xyphx.com",
-        logo: "",
-      },
-      {
-        id: "2",
-        name: "XyphX OS",
-        description:
-          "Core operating platform powering products, services, integrations, authentication, and the XyphX ecosystem.",
-        status: "Platform",
-        rank: 3,
-        link: "https://os.xyphx.com",
-        logo: "",
-      },
-      {
-        id: "3",
-        name: "DotX",
-        description:
-          "AI-powered autonomous multi-agent platform for software engineering and enterprise automation.",
-        status: "Enterprise",
-        rank: 1,
-        link: "https://dotx.xyphx.com",
-        logo: "",
-      },
-    ];
-    setProducts(dummyProducts);
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/products`);
+        if (response.ok) {
+          const data = await response.json();
+          const dynamicProducts: Product[] = data.map((item: any, index: number) => ({
+            id: item.id || String(index + 1),
+            name: item.name,
+            description: item.description || "No description provided.",
+            status: "Active",
+            rank: index + 1,
+            link: item.link || "#",
+            logo: "",
+          }));
+          setProducts(dynamicProducts);
+        }
+      } catch (error) {
+        console.error("Failed to fetch products:", error);
+      }
+    };
+
+    fetchProducts();
   }, []);
 
   // hover art removed

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import Pricing from "./pages/Pricing";
 import ApiPage from "./pages/ApiPage";

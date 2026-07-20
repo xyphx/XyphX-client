@@ -11,8 +11,8 @@ const Login: React.FC = () => {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/console";
 
-  // If already logged in as admin, redirect
-  if (user && isAdmin) {
+  // If already logged in, redirect
+  if (user) {
     return <Navigate to={from} replace />;
   }
 
@@ -46,7 +46,7 @@ const Login: React.FC = () => {
 
         <div className="space-y-4">
           <button
-            onClick={() => login()}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/google`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >
@@ -60,7 +60,7 @@ const Login: React.FC = () => {
           </button>
 
           <button
-            onClick={() => login()}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/microsoft`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >
@@ -74,7 +74,7 @@ const Login: React.FC = () => {
           </button>
 
           <button
-            onClick={() => login()}
+            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/yahoo`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >

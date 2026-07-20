@@ -4,7 +4,7 @@ import Reveal from "@/components/motion/Reveal";
 interface Sponsor {
   id: string;
   name: string;
-  logo_url: string;
+  logoUrl: string;
 }
 
 /**
@@ -15,13 +15,19 @@ const Sponsors: React.FC = () => {
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
 
   useEffect(() => {
-    // Dummy sponsors
-    const dummySponsors: Sponsor[] = [
-      { id: "1", name: "Xiaomi", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/ae/Xiaomi_logo_%282021-%29.svg" },
-      { id: "2", name: "Microsoft", logo_url: "https://upload.wikimedia.org/wikipedia/commons/9/96/Microsoft_logo_%282012%29.svg" },
-      { id: "4", name: "HP", logo_url: "https://upload.wikimedia.org/wikipedia/commons/a/ad/HP_logo_2012.svg" },
-    ];
-    setSponsors(dummySponsors);
+    const fetchSponsors = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/sponsors`);
+        if (response.ok) {
+          const data = await response.json();
+          setSponsors(data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch sponsors", error);
+      }
+    };
+    
+    fetchSponsors();
   }, []);
 
   if (sponsors.length === 0) return null;
@@ -44,7 +50,7 @@ const Sponsors: React.FC = () => {
               {duplicated.map((s, i) => (
                 <span key={`${s.id}-${i}`} className="group mx-2 flex items-center">
                   <img
-                    src={s.logo_url}
+                    src={s.logoUrl}
                     alt={s.name}
                     className="h-8 md:h-12 w-auto object-contain opacity-90 transition-all duration-300 group-hover:opacity-100"
                   />
