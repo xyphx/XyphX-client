@@ -70,12 +70,13 @@ export default function ApiPage() {
 
   const fetchProducts = async () => {
     try {
-      const res = await api.get('/api/public/products');
+      const res = await api.get('/api/public/products?apiKeyOnly=true');
       if (res.ok) {
         const data = await res.json();
-        setProducts(data);
-        if (data.length > 0) {
-          setNewKeyProduct(data[0].id);
+        const validProducts = data.filter((p: any) => p.apiKey !== false);
+        setProducts(validProducts);
+        if (validProducts.length > 0) {
+          setNewKeyProduct(validProducts[0].id);
         }
       }
     } catch (e) {
