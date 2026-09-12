@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import Pricing from "./Pricing";
 import Navbar from "@/components/landing/Navbar";
+import { API_BASE_URL } from "@/lib/api";
 
 const Login: React.FC = () => {
   const { login, user, isAdmin, loading } = useAuth();
@@ -46,7 +47,7 @@ const Login: React.FC = () => {
 
         <div className="space-y-4">
           <button
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/google`}
+            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/google`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >
@@ -60,7 +61,7 @@ const Login: React.FC = () => {
           </button>
 
           <button
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/microsoft`}
+            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/microsoft`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >
@@ -74,7 +75,7 @@ const Login: React.FC = () => {
           </button>
 
           <button
-            onClick={() => window.location.href = `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/yahoo`}
+            onClick={() => window.location.href = `${API_BASE_URL}/api/auth/yahoo`}
             disabled={loading}
             className="group relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl border border-line-soft bg-background px-6 py-4 font-semibold text-carbon shadow-sm transition-all duration-300 hover:border-carbon/30 hover:shadow-md hover:bg-paper active:scale-[0.98] disabled:opacity-50"
           >

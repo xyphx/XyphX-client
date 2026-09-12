@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import Reveal from "@/components/motion/Reveal";
 import { ArtAgents, ArtPortfolio, ArtSystem } from "@/components/art/LineArt";
+import { API_BASE_URL } from "@/lib/api";
 
 interface Product {
   id: string;
@@ -29,7 +30,7 @@ export default function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/products`);
+        const response = await fetch(`${API_BASE_URL}/api/public/products`);
         if (response.ok) {
           const data = await response.json();
           const dynamicProducts: Product[] = data.map((item: any, index: number) => ({

@@ -66,7 +66,11 @@ export const trackEvent = async (eventName: string, properties: Record<string, a
       }
     };
 
-    const apiUrl = import.meta.env.VITE_API_URL || 'https://admin.xyphx.com';
+    const apiUrl = import.meta.env.VITE_API_URL;
+    if (!apiUrl) {
+      console.error("[ERROR] Missing required environment variable 'VITE_API_URL'.");
+      return;
+    }
     const endpoint = `${apiUrl}/api/public/analytics/track`;
 
     await fetch(endpoint, {

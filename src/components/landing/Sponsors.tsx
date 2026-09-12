@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Reveal from "@/components/motion/Reveal";
+import { API_BASE_URL } from "@/lib/api";
 
 interface Sponsor {
   id: string;
@@ -19,7 +20,7 @@ const Sponsors: React.FC = () => {
   useEffect(() => {
     const fetchSponsors = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/public/sponsors`);
+        const response = await fetch(`${API_BASE_URL}/api/public/sponsors`);
         if (response.ok) {
           const data = await response.json();
           setSponsors(data);

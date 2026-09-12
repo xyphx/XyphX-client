@@ -6,7 +6,11 @@
 import { store } from '../store/store';
 import { setCredentials, logout } from '../store/authSlice';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
+const envApiUrl = import.meta.env.VITE_API_URL;
+if (!envApiUrl) {
+  console.error("[ERROR] Missing required environment variable 'VITE_API_URL'.");
+}
+export const API_BASE_URL = envApiUrl || '';
 
 interface RequestOptions extends RequestInit {
   // Add custom options here if needed in the future

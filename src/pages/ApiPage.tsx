@@ -6,7 +6,7 @@ import Reveal from "@/components/motion/Reveal";
 import { AnimatePresence, motion } from "framer-motion";
 import { Key, Copy, Check, Trash2, Shield, Eye, EyeOff, Lock, AlertCircle, X, ChevronDown, User, Activity, Mail, LogOut } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { api } from "@/lib/api";
+import { api, API_BASE_URL } from "@/lib/api";
 
 interface ApiKey {
   id: string;
@@ -733,7 +733,7 @@ export default function ApiPage() {
                             </span>
                           ) : (
                             <a
-                              href={`${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/auth/${provider.toLowerCase()}`}
+                              href={`${API_BASE_URL}/api/auth/${provider.toLowerCase()}`}
                               className="text-[11px] uppercase font-bold tracking-wider text-carbon/60 hover:text-ink transition-colors px-3 py-1.5 border border-line-soft hover:border-ink/30 rounded-lg hover:bg-ink/5"
                             >
                               Connect
