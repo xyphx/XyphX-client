@@ -65,6 +65,19 @@ export default function ApiPage() {
 
   const [clearStorageInput, setClearStorageInput] = useState("");
   const [isClearStorageModalOpen, setIsClearStorageModalOpen] = useState(false);
+  const [clearStorageError, setClearStorageError] = useState("");
+  const [isClearingStorage, setIsClearingStorage] = useState(false);
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
+
+  const showNotification = (type: 'success' | 'error' | 'info', message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => {
+      setNotification(prev => prev?.message === message ? null : prev);
+    }, 4500);
+  };
 
   useEffect(() => {
     fetchProfile();
@@ -179,14 +192,16 @@ export default function ApiPage() {
           navigator.clipboard.writeText(fullKey);
           setCopiedKeyId(id);
           setTimeout(() => setCopiedKeyId(null), 2000);
+          showNotification('success', 'API key copied to clipboard.');
         }
       } else {
-        const errorText = await res.text();
-        alert(`Failed to fetch API key: ${res.status} ${res.statusText}\n${errorText}\n\nIf you see 405 or 400, your backend is still running old code. Please restart your Spring Boot backend!`);
+        const errorData = await res.json().catch(() => null);
+        const errMsg = errorData?.message || errorData?.error || `Failed to fetch API key (${res.status}).`;
+        showNotification('error', errMsg);
       }
     } catch (e: any) {
       console.error("Failed to fetch full API key", e);
-      alert(`Network error: ${e.message}. Backend might be down or restarting.`);
+      showNotification('error', 'Network error: could not connect to server.');
     }
   };
 
@@ -206,9 +221,14 @@ export default function ApiPage() {
       if (res.ok) {
         setSentEmailKeyId(keyId);
         setTimeout(() => setSentEmailKeyId(null), 3000);
+        showNotification('success', 'A new 6-digit PIN has been emailed to your account.');
+      } else {
+        const errorData = await res.json().catch(() => null);
+        showNotification('error', errorData?.message || 'Failed to send PIN email. Please try again.');
       }
     } catch (e) {
       console.error("Failed to send new password email", e);
+      showNotification('error', 'Network error: unable to send PIN email.');
     } finally {
       setSendingEmailKeyId(null);
     }
@@ -229,12 +249,14 @@ export default function ApiPage() {
         if (res.ok) {
           setKeys(keys.filter((k) => k.id !== keyId));
           closeModal();
+          showNotification('success', 'API key deleted successfully.');
         } else {
-          setModalError("Incorrect password or failed to delete.");
+          const errorData = await res.json().catch(() => null);
+          setModalError(errorData?.message || errorData?.error || "Incorrect PIN or failed to delete.");
         }
       }
     } catch (e) {
-      setModalError("An unexpected error occurred.");
+      setModalError("An unexpected error occurred. Please try again.");
     }
   };
 
@@ -244,17 +266,33 @@ export default function ApiPage() {
     setModalError("");
   };
 
+  const closeClearStorageModal = () => {
+    setIsClearStorageModalOpen(false);
+    setClearStorageInput("");
+    setClearStorageError("");
+  };
+
   const handleClearStorage = async () => {
     if (clearStorageInput !== "CLEAR") return;
+    setIsClearingStorage(true);
+    setClearStorageError("");
+
     try {
       const res = await api.delete('/api/users/me/storage/clear');
       if (res.ok) {
-        setIsClearStorageModalOpen(false);
-        setClearStorageInput("");
+        closeClearStorageModal();
+        showNotification('success', 'All files and storage quota have been cleared successfully.');
         fetchStorage();
+      } else {
+        const errorData = await res.json().catch(() => null);
+        const errMsg = errorData?.message || errorData?.error || `Failed to clear storage (${res.status}). Please try again.`;
+        setClearStorageError(errMsg);
       }
     } catch (e) {
-      console.error("Failed to clear storage");
+      console.error("Failed to clear storage", e);
+      setClearStorageError("Unable to connect to storage service. Please check your network and try again.");
+    } finally {
+      setIsClearingStorage(false);
     }
   };
 
@@ -267,6 +305,34 @@ export default function ApiPage() {
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip font-sans">
       <Background />
       <Navbar />
+
+      {/* Floating Notification Toast */}
+      <AnimatePresence>
+        {notification && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className={`fixed top-20 right-6 z-50 flex items-center gap-3 px-5 py-3.5 rounded-2xl shadow-2xl border backdrop-blur-md transition-all ${
+              notification.type === 'success' 
+                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400'
+                : notification.type === 'error'
+                ? 'bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400'
+                : 'bg-paper border-line-soft text-carbon'
+            }`}
+          >
+            {notification.type === 'success' ? (
+              <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+            ) : (
+              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+            )}
+            <span className="text-sm font-medium">{notification.message}</span>
+            <button onClick={() => setNotification(null)} className="ml-2 text-current opacity-60 hover:opacity-100 transition-opacity">
+              <X className="w-4 h-4" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Custom Confirmation Modal for Sending Password Email */}
       <AnimatePresence>
@@ -341,10 +407,7 @@ export default function ApiPage() {
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15 }}
               className="absolute inset-0 bg-background/80"
-              onClick={() => {
-                setIsClearStorageModalOpen(false);
-                setClearStorageInput("");
-              }}
+              onClick={closeClearStorageModal}
             />
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
@@ -353,7 +416,7 @@ export default function ApiPage() {
               transition={{ duration: 0.15, ease: "easeOut" }}
               className="bg-paper border border-line-soft rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-xl relative z-10 will-change-transform"
             >
-              <button onClick={() => setIsClearStorageModalOpen(false)} className="absolute top-4 right-4 text-carbon/40 hover:text-carbon transition-colors">
+              <button onClick={closeClearStorageModal} className="absolute top-4 right-4 text-carbon/40 hover:text-carbon transition-colors">
               <X className="w-5 h-5" />
             </button>
             <div className="mb-6 text-center mt-2">
@@ -375,15 +438,31 @@ export default function ApiPage() {
                   value={clearStorageInput}
                   onChange={(e) => setClearStorageInput(e.target.value)}
                   placeholder="CLEAR"
-                  className="w-full bg-background border border-line-soft text-carbon text-center text-lg px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 transition-colors uppercase"
+                  disabled={isClearingStorage}
+                  className="w-full bg-background border border-line-soft text-carbon text-center text-lg px-4 py-3 rounded-xl focus:outline-none focus:border-red-500 transition-colors uppercase disabled:opacity-50"
                 />
               </div>
+
+              {clearStorageError && (
+                <div className="flex items-center gap-2 text-red-500 text-sm justify-center bg-red-500/10 py-2.5 px-3 rounded-xl border border-red-500/20 text-center">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{clearStorageError}</span>
+                </div>
+              )}
+
               <button
                 onClick={handleClearStorage}
-                disabled={clearStorageInput !== "CLEAR"}
-                className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold transition-all hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={clearStorageInput !== "CLEAR" || isClearingStorage}
+                className="w-full bg-red-500 text-white py-3 rounded-xl font-semibold transition-all hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
-                Clear Everything
+                {isClearingStorage ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Clearing Storage...</span>
+                  </>
+                ) : (
+                  "Clear Everything"
+                )}
               </button>
             </div>
             </motion.div>
